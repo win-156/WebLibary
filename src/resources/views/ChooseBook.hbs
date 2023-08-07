@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="/css/ChooseBook.css">
+    <title>Choose Book</title>
+
+</head>
+
+<body>
+    <div id="main">
+        <div class="book">
+            <div class="book-choose">
+                <img src="/{{data.PATHIMAGE}}">
+                <div class="button-add-to-interesting-book">
+                    <button class="button-like" onclick="toggleLike()" id="likeButton"><i id="heartIcon"
+                            class="fa fa-heart"></i> </button>
+                </div>
+            </div>
+            <div class="book-information">
+                <ul class="list-group">
+                    <li id="getfa" class="{{favorites.UID}} {{favorites.BID}} list-group-item list-group-item-light">
+                        Title: <span>{{data.TITTLE}}</span></li>
+                    <li class="list-group-item list-group-item-light">Author: <span>{{data.AUTHOR}}</span></li>
+                    <li class="list-group-item list-group-item-light">Publishing Year:
+                        <span>{{data.PUBLISHINGYEAR}}</span>
+                    </li>
+                    <li class="list-group-item list-group-item-light">Genre: <span>{{data.GENRE}}</span></li>
+                    <li class="list-group-item list-group-item-light">Language: <span>{{data.LANGUAGE_BOOK}}</span></li>
+                    <li class="list-group-item list-group-item-light">Has left: <span>{{data.HASLEFT}}</span></li>
+                    <li class="list-group-item list-group-item-light">Place: <span>Department A- Shelf C04</span></li>
+                    <li class="list-group-item list-group-item-light">Price: <span>{{data.PRICE}}$</span></li>
+                    <li class="list-group-item list-group-item-light">Routine: <span>{{data.DURATION}} days</span></li>
+                </ul>
+            </div>
+            <div class="button-add-to-payment">
+                <button class="button-add-to-cart"> <i class="fa fa-shopping-basket"></i><span class="add-to-cart">Add
+                        to cart</span> </button>
+            </div>
+        </div>
+    </div>
+    <script>
+
+        function postFavoriteBook() {
+            var element = document.getElementById('getfa')
+            const _classList = element.classList;
+            const classArray = Array.from(_classList)
+            const dataObj = {
+                UID: classArray[0],
+                BID: classArray[1]
+            }
+            const options = {
+                method: 'POST',
+                headers: {
+                    'content-Type': 'application/json'
+                },
+                body: JSON.stringify(dataObj)
+            }
+            const URL = '/home/' + classArray[1]
+            return fetch(URL, options)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.err) alert('erro insert favorites')
+                    else {
+                        console.log('suss')
+                    }
+                })
+        }
+        function toggleLike() {
+            var likeButton = document.getElementById("likeButton");
+            var heartIcon = document.getElementById("heartIcon");
+
+            if (likeButton.classList.contains("liked")) {
+                likeButton.classList.remove("liked");
+                heartIcon.classList.remove("fa-heart-broken");
+                likeButton.innerHTML = '<i id="heartIcon" class="fas fa-heart"></i>';
+            } else {
+                likeButton.classList.add("liked");
+                heartIcon.classList.add("fa-heart-broken");
+                likeButton.innerHTML = '<i id="heartIcon" class="fas fa-heart-broken"></i>';
+            }
+            postFavoriteBook()
+        }
+
+
+
+
+
+
+    </script>
+</body>
+
+</html>

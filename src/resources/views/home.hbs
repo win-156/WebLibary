@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="/css/home.css">
+
+    <title>Home</title>
+</head>
+
+<body>
+    <main>
+        <form class="form-search">
+            <div class="select-type">
+                <select id="type" onchange="">
+                    <option value="A-Z">A-Z</option>
+                    <option value="Z-A">Z-A</option>
+                </select ect>
+            </div>
+
+            <input type="text" placeholder="Search by name" name="search">
+            <button type="submit"><i class="fa fa-search"></i></button>
+        </form>
+        <div class="book">
+            <div class="list-book" id="list-book">
+
+            {{#each data}}
+                <div class="book-block">
+                    <a href="/home/{{this.BID}}/{{../URL_AUTH.pass}}"><img src='/{{this.PATHIMAGE}}'></a>
+                    <div class="book-information">
+                        <div class="book-detail">{{this.TITTLE}}</div>
+                        <div class="book-detail">{{this.AUTHOR}}</div>
+                    </div>
+                </div>
+            {{/each}} 
+
+            </div>
+        </div>
+        </div>
+    </main>
+    <script>
+
+
+
+
+// function
+    function sort_AtoZ(data){
+            data.sort((a, b)=>{
+            const tittle_A = a.TITTLE.toUpperCase();
+            const tittle_B = b.TITTLE.toUpperCase();
+
+            if(tittle_A > tittle_B) return 1;
+            else if(tittle_A < tittle_B) return -1;
+            else return 0;
+        })
+    }
+    
+    function sort_ZtoA(data){
+            data.sort((a, b)=>{
+            const tittle_A = a.TITTLE.toUpperCase();
+            const tittle_B = b.TITTLE.toUpperCase();
+
+            if(tittle_A > tittle_B) return -1;
+            else if(tittle_A < tittle_B) return 1;
+            else return 0;
+        })
+    }
+            function showListBook(data){
+            //display
+            if (typeof data === 'object' && data !== null)
+            {
+                const boxes = document.querySelectorAll('.book-block');
+            boxes.forEach(box=> {
+                box.remove();
+            })
+            for(let i of data)
+            {
+                var list_book_container = document.getElementById('list-book')
+                var container = document.createElement('div');
+                container.className = "book-block"
+
+                var tag_a = document.createElement('a')
+                tag_a.href = '/home/' + i.BID
+
+                var tag_img = document.createElement('img')
+                tag_img.src = '/' + i.PATHIMAGE
+                tag_a.appendChild(tag_img)
+
+                var tag_div_infoBook = document.createElement('div')
+                tag_div_infoBook.className = 'book-information'
+
+                var tag_div_tittle = document.createElement('div')
+                tag_div_tittle.className = 'book-detail'
+                tag_div_tittle.innerText = i.TITTLE
+
+                var tag_div_author = document.createElement('div')
+                tag_div_author.className = 'book-detail'
+                tag_div_author.innerText = i.AUTHOR
+
+                tag_div_infoBook.appendChild(tag_div_tittle)
+                tag_div_infoBook.appendChild(tag_div_author)
+
+                container.appendChild(tag_a)
+                container.appendChild(tag_div_infoBook)
+                list_book_container.appendChild(container)
+            }
+            }
+        }
+
+    function fetch_getBook(tittle_search){
+                const options = {
+                method: 'POST',
+                headers:{
+                    'content-Type' : 'application/json'
+                }, 
+                body: JSON.stringify(tittle_search)
+            }
+            const URL = '/home/search'
+
+            return fetch(URL, options)
+            .then(response=> response.json())
+            .then(data=>{
+                if(data.err) window.location.href('/erro')
+                else{
+                    //console.log(data)
+                        //save data global after fetch
+                        return data['data']['0']
+                } 
+            })
+    }
+
+    var data_Object_global= null
+
+//Run
+// Onclick form
+        const form = document.querySelector('form')
+        form.addEventListener('submit', async event => {
+            event.preventDefault();
+            const formData = new FormData(form);
+            const data = Object.fromEntries(formData)
+
+            fetch_getBook(data)
+            .then(data=>{
+                showListBook(data)
+                data_Object_global = data
+            })
+            
+
+        })
+
+//change slect
+    const select = document.querySelector('select')
+    select.addEventListener('change', (event)=>{
+        const value_select = event.target.value
+        if(data_Object_global === null ){
+            fetch_getBook({search: ''})
+            .then(data=>{
+                data_Object_global = data
+                
+                if(value_select ==='A-Z') sort_AtoZ(data)
+                else  sort_ZtoA(data)
+                showListBook(data)
+            })
+
+        }
+        else{
+            if(value_select ==='A-Z') sort_AtoZ(data_Object_global)
+            else  sort_ZtoA(data_Object_global)
+            showListBook(data_Object_global)
+        }
+    })
+    </script>
+</body>
+
+</html>
